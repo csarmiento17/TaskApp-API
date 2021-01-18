@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const Task = require('./task')
 
 
 const userSchema = new mongoose.Schema({
@@ -49,6 +50,30 @@ const userSchema = new mongoose.Schema({
     }]
 })
 
+
+userSchema.virtual('tasks', {
+    ref: 'Task',
+    localField:'_id',
+    foreignField: 'owner'
+})
+
+// Hide Token and Password in Create User and Login
+userSchema.methods.toJSON = function () { 
+    const user = this
+    //gets value - provided by Mongoose
+    const userObject = user.toObject() 
+
+    delete userObject.password
+    delete userObject.tokens
+    return userObject
+}
+
+// Delete user tasks when user is removed
+userSchema.pre('remove', async function (next){
+    const user = this
+    await Task.deleteMany({owner: user._id})
+    next()
+})
 // Generate Token
 // methods are accessible on instance methods
 userSchema.methods.generateAuthToken = async function () {

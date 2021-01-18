@@ -3,18 +3,17 @@ const router = new express.Router()
 const auth = require('../middleware/auth')
 const User = require('../models/user')
 
+// Create User
+router.post('/users', async (req,res) => {
+    const user = new User(req.body);
 
-// Get all Users
-router.get('/users/me', auth,  async (req, res) => {
-    // try {
-    //     const users = await User.find({})
-    //     res.send(users)
-    // } catch (error) {
-    //     res.status(500).send()
-    // }
-
-    res.send(req.user)
-
+    try {
+        await user.save()
+        const token = await user.generateAuthToken()
+        res.status(201).send({user, token})
+    } catch (error) {
+        res.status(400).send(error)
+    }
 })
 
 // User Login
@@ -29,11 +28,24 @@ router.post('/users/login', async (req, res) => {
     }
 })
 
+// Get all Users
+router.get('/users/me', auth,  async (req, res) => {
+    // try {
+    //     const users = await User.find({})
+    //     res.send(users)
+    // } catch (error) {
+    //     res.status(500).send()
+    // }
+
+    res.send(req.user)
+
+})
+
 
 // User's Logout
 router.post('/users/logout', auth, async(req, res) => {
     try {
-            req.user.token = req.user.tokens.filter((token) =>{
+            req.user.tokens = req.user.tokens.filter((token) =>{
                
             return token.token !== req.token
         })
@@ -50,7 +62,7 @@ router.post('/users/logout', auth, async(req, res) => {
 router.post('/users/logoutAll', auth, async(req, res) =>{
     try {
 
-        req.user.token = []
+        req.user.tokens = []
         await req.user.save()
 
         res.send('All users has been logged out')
@@ -61,18 +73,6 @@ router.post('/users/logoutAll', auth, async(req, res) =>{
 })
 
 
-// Create User
-router.post('/users', async (req,res) => {
-    const user = new User(req.body);
-
-    try {
-        await user.save()
-        const token = await user.generateAuthToken()
-        res.status(201).send({user, token})
-    } catch (error) {
-        res.status(400).send(error)
-    }
-})
 
 // Update Logon User
 router.patch('/users/me', auth, async (req, res) => {
@@ -112,7 +112,7 @@ router.delete('/users/me', auth, async (req, res) => {
         //     res.status(404).send()
         // }
         await req.user.remove()
-        res.send(user)
+        res.send(req.user)
     } catch (error) {
         res.status(400).send()
     }
