@@ -140,6 +140,13 @@ router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) 
     res.status(400).send({error: error.message})
 })
 
+router.delete('/users/me/avatar', auth, async(req, res) =>{
+    req.user.avatar = undefined
+    await req.user.save()
+    res.send()
+}, (error, req, res, next) => {
+    res.status(400).send({error: error.message})
+})
 
 // Get Individual User - commented due to only your user should you see and get
 // router.get('/users/:id', async (req, res) => {
