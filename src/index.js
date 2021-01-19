@@ -6,10 +6,9 @@ const taskRouter = require('./routers/task')
 const app= express();
 const port = process.env.PORT || 3000;
 
-// Disable requests if server is unavailable
-// app.use((req, res, next) =>{
-//     res.status(503).send('Server is unavailable')
-// })
+const multer = require('multer');
+
+
 
 app.use(express.json())
 app.use(userRouter)
