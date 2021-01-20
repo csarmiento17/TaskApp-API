@@ -6,7 +6,7 @@ const auth = async(req, res, next) => {
         const token = req.header('Authorization').replace('Bearer ','')
         
         // Validates header
-        const decoded = jwt.verify(token,'nodejsapp')
+        const decoded = jwt.verify(token,process.env.JWT_SECRET)
 
         // Find user with correct id who has auth token still stored, if logout token is valid
         const user = await User.findOne({ _id: decoded._id, 'tokens.token': token})
