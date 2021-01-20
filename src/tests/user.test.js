@@ -111,6 +111,4 @@ test('Should not update invalid user fields', async () => {
             location: 'Canada'
         })
         .expect(404)
-    //  const user = await User.findById(userOneId)
-    //  expect(user.name).toEqual('Gail')
 })
